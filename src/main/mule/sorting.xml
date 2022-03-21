@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="12e06ee6-c122-4a65-95d5-50415de277ed" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="double-sortingFlow" doc:id="c6b9371d-0162-4198-8ac7-42fd97aa6bd7" >
+		<http:listener doc:name="Listener" doc:id="370c8c3f-3e48-4028-bd4d-924a05db44e1" config-ref="HTTP_Listener_config" path="doublesorting"/>
+		<ee:transform doc:name="Transform Message" doc:id="e5302549-fb8d-40d9-91d6-e46aa711fadd" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	employees: payload.employees map ((data, idex) ->
+	{
+		employeeName: data.name,
+		employeeScore: data.score,
+		employeeDeptId: data.departmentId
+	}) orderBy ($.employeeScore as String {format: "00000"} ++ $.employeeDeptId as String {format: "00000"})
+	
+}
+
+// if we want to double sort using the integer values we can use tis technique
+// sorting will be from least number to higher number and if u want highest to least then we 
+//should use  minus (-) in front of $ example: orderBy (-$.employeeScore)
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="13e64947-e33d-437d-bee2-026367e214b9" message="#[payload]"/>
+	</flow>
+	<flow name="single-sortingFlow" doc:id="6ed33dd5-8bdd-482c-8ea8-a8fb60a717c0" >
+		<http:listener doc:name="Listener" doc:id="80168434-8f9e-493a-8603-ec1ef1877ff7" config-ref="HTTP_Listener_config" path="sorting"/>
+		<logger level="INFO" doc:name="Logger" doc:id="56a7ae5a-6e06-49f1-8cbe-1afa953e1ff5" message="#[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="10efadf2-e2dc-40da-b768-be56837d8803" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	employees: payload.employees map ((data, idex) ->
+	{
+		employeeName: data.name,
+		employeeScore: data.score,
+		employeeDeptId: data.departmentId
+	}) orderBy ($.employeeName)
+	
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="sorting" format="json">
+      <types:shape format="weave" example="examples/sorting.json"><![CDATA[%dw 2.0
+
+type sorting = {|
+  employees: Array<{|    name: String,     score: Number {"typeId": "int"},     departmentId: Number {"typeId": "int"}  |}>
+|} {"example": "{\\\"employees\\\":[{\\\"name\\\":\\\"Sachin\\\",\\\"score\\\":500,\\\"departmentId\\\":15},{\\\"name\\\":\\\"Kohli\\\",\\\"score\\\":450,\\\"departmentId\\\":12},{\\\"name\\\":\\\"jadeja\\\",\\\"score\\\":350,\\\"departmentId\\\":87},{\\\"name\\\":\\\"VVS Laxman\\\",\\\"score\\\":500,\\\"departmentId\\\":65}]}"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#10efadf2-e2dc-40da-b768-be56837d8803">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="sorting"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>
